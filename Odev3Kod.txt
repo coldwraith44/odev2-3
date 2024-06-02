@@ -1,0 +1,883 @@
+import pygame
+import sys
+pygame.init()
+
+white = (220, 220, 220)
+black = (0, 0, 0)
+
+get_screen = (1001, 601)
+screen = pygame.display.set_mode(get_screen)
+icon = pygame.image.load("iconlogicgates.png")
+pygame.display.set_icon(icon)
+pygame.display.set_caption("Logic gates")
+
+font = pygame.font.Font(None, 32)
+font2 = pygame.font.Font(None, 16)
+font3 = pygame.font.Font(None, 24)
+font4 = pygame.font.Font(None, 28)
+upstr = font2.render("U", True, (0, 255, 0))
+downstr = font2.render("D", True, (255, 0, 0))
+acik = font3.render("1", True, (0, 255, 0))
+kapali = font3.render("0", True, (255, 0, 0))
+text4 = font2.render("Çalıştır", True, (0, 0, 0))
+text5 = font2.render("Reset", True, (0, 0, 0))
+text6 = font2.render("Durdur", True, (0, 0, 0))
+
+text7 = font2.render("Çizgi", True, (0, 0, 0))
+text8 = font2.render("Düğüm", True, (0, 0, 0))
+
+text9 = font2.render("Notgate", True, (0, 0, 0))
+text10 = font2.render("Buffer", True, (0, 0, 0))
+text11 = font2.render("Andgate", True, (0, 0, 0))
+text12 = font2.render("Orgate", True, (0, 0, 0))
+text13 = font2.render("Nandgate", True, (0, 0, 0))
+text14 = font2.render("Norgate", True, (0, 0, 0))
+text15 = font2.render("Xorgate", True, (0, 0, 0))
+text16 = font2.render("Xnorgate", True, (0, 0, 0))
+
+text17 = font2.render("Giriş", True, (0, 0, 0))
+text18 = font2.render("Çıkış", True, (0, 0, 0))
+text19 = font2.render("Led", True, (0, 0, 0))
+
+background = pygame.image.load("background_lg.png")
+
+calistirk = pygame.Rect(11, 11, 26, 26)
+resetk = pygame.Rect(60, 9, 26, 25)
+durdurk = pygame.Rect(111, 10, 26, 25)
+
+cizgik = pygame.Rect(8, 77, 59, 37)
+dugumk = pygame.Rect(116, 78, 43, 38)
+
+Notgatek = pygame.Rect(11, 159, 31, 35)
+Bufferk = pygame.Rect(78, 162, 24, 33)
+Andgatek = pygame.Rect(135, 160, 40, 38)
+Orgatek = pygame.Rect(200, 161, 31, 37)
+Nandgatek = pygame.Rect(10, 227, 39, 44)
+Norgatek = pygame.Rect(71, 233, 34, 38)
+Xorgatek = pygame.Rect(136, 230, 38, 39)
+Xnorgatek = pygame.Rect(198, 231, 42, 37)
+
+girisk = pygame.Rect(99, 316, 47, 44)
+cikisk = pygame.Rect(2, 314, 68, 47)
+ledk = pygame.Rect(177, 314, 55, 46)
+
+cizgi_i = pygame.image.load("cizgi_lg.png")
+dugum_i = pygame.image.load("dugum_lg.png")
+
+notgate_i = pygame.image.load("NOTgate_lg.png")
+buffer_i = pygame.image.load("Buffer_lg.png")
+andgate_i = pygame.image.load("ANDgate_lg.png")
+orgate_i = pygame.image.load("ORgate_lg.png")
+nandgate_i = pygame.image.load("NANDgate_lg.png")
+norgate_i = pygame.image.load("NORgate_lg.png")
+xorgate_i = pygame.image.load("XORgate_lg.png")
+xnorgate_i = pygame.image.load("XNORgate_lg.png")
+giris_i = pygame.image.load("giriskutusu_lg.png")
+cikis_i = pygame.image.load("cikiskutusu_lg.png")
+led_i = pygame.image.load("led_lg.png")
+led_on_i = pygame.image.load("ledOn_lg.png")
+
+locates = [calistirk, resetk, durdurk, cizgik, dugumk, Notgatek, Bufferk, Andgatek, Orgatek, Nandgatek, Norgatek, Xorgatek, Xnorgatek, girisk, cikisk, ledk]
+
+labels = [text4, text5, text6, text7, text8, text9, text10, text11, text12, text13, text14, text15, text16, text17, text18, text19]
+string_names = ["Çalıştır", "Reset", "Durdur", "Çizgi", "Düğüm", "Notgate", "Buffer", "Andgate", "Orgate", "Nandgate", "Norgate",
+"Xorgate", "Xnorgate", "Giriş", "Çıkış", "Led"]
+
+image_list = [None, None, None, cizgi_i, dugum_i, notgate_i, buffer_i, andgate_i, orgate_i, nandgate_i, norgate_i, xorgate_i, xnorgate_i, giris_i, cikis_i, led_i]
+
+logic_gates = ["Notgate", "Buffer", "Andgate", "Orgate", "Nandgate", "Norgate",
+"Xorgate", "Xnorgate"]
+control_keys = ["Giriş", "Çıkış", "Led"]
+entry_exit = ["Çizgi", "Düğüm"]
+
+adi = ""
+dogruluk_durumu = ""
+cikis_sayisi = ""
+
+ad_text = font4.render("Adı:", True, (0, 0, 0))
+dogruluk_durumu_text = font4.render("Doğruluk durumu:", True, (0, 0, 0))
+cikis_sayisi_text = font4.render("Girdi sayısı:", True, (0, 0, 0))
+# Others:
+selected = None
+locate_for_item = None
+draw_line = False
+logic_front = False
+logic_front2 = 0
+ON = False
+OFF = False
+timer1 = pygame.time.get_ticks()
+# Dictionary:
+grids = {}
+column = 0
+for py in range(30, 571, 30):
+    for px in range(450, 961, 30):
+        column += 1
+        h1 = 16
+        w1 = 16
+        if px == 960:
+            w1 = 0
+        if py == 570:
+            h1 = 0
+
+        grids[column] = {"Nokta": pygame.Rect(px-3, py-3, 9, 9), "Eleman": "", "Kare_ortası": pygame.Rect(px+8, py+8, w1, h1), "Çizgi_başlangıç": [], "Çizgi_bitiş": [], "Lojik_ön": "", "Lojik_arka1": "", "Lojik_arka2": "", "Lojik": "", "Giriş_değeri": None, "Çıkış_değeri": None, "Kablo_renk": (255, 0, 0), "Gate_renk": (255, 0, 0), "Led": "", "Lojik_değer": "", "Lojik_ön_no": "", "Lojik_değer2": ""}
+
+
+while True:
+    def draw_background():
+        screen.blit(background, (0, 0))
+
+    def show_name():
+        mouse_pos = pygame.mouse.get_pos()
+        x = -1
+        for int1 in locates:
+            x += 1
+            if int1.collidepoint(mouse_pos):
+                text_w, text_h = labels[x].get_size()
+                x1, y = int1.centerx, int1.centery+int1.height
+                screen.blit(labels[x], (x1 - text_w // 2, y - text_h // 2))
+
+    def shine():
+        mouse_pos = pygame.mouse.get_pos()
+        for int2 in locates:
+            if int2.collidepoint(mouse_pos):
+                shine_button = pygame.Surface((int2.width+12, int2.height+12))
+                transparent_value = 100
+                shine_button.set_alpha(transparent_value)
+                shine_button.fill((255, 255, 255))
+                screen.blit(shine_button, (int2.x-4, int2.y-4))
+
+    def add():
+        global selected, locate_for_item
+        global draw_line, logic_front, logic_front2
+        mouse_click1 = pygame.mouse.get_pressed()
+        mouse_pos1 = pygame.mouse.get_pos()
+        if mouse_click1[0] and not draw_line:
+            for item in grids:
+                if grids[item]["Nokta"].collidepoint(mouse_pos1):
+                    if selected == "Çizgi":
+                        locate_for_item = item
+                        draw_line = True
+                    elif selected == "Düğüm":
+                        if grids[item]["Eleman"] == "":
+                            grids[item]["Eleman"] = "Düğüm"
+                    elif selected == "Çıkış":
+                        if grids[item]["Eleman"] == "":
+                            grids[item]["Eleman"] = "Çıkış"
+                            grids[item]["Çıkış_değeri"] = False
+                    elif selected == "Giriş":
+                        if grids[item]["Eleman"] == "":
+                            grids[item]["Eleman"] = "Giriş"
+                            grids[item]["Giriş_değeri"] = True
+                    elif selected == "Led":
+                        if grids[item]["Eleman"] == "":
+                            grids[item]["Eleman"] = "Led"
+                            grids[item]["Led"] = False
+                    elif selected == "Notgate":
+                        if grids[item]["Eleman"] == "":
+                            grids[item]["Eleman"] = "Notgate"
+                    elif selected == "Buffer":
+                        if grids[item]["Eleman"] == "":
+                            grids[item]["Eleman"] = "Buffer"
+
+        if selected in logic_gates and selected != "Buffer" and selected != "Notgate":
+            logic_front = True
+            x3, y3 = mouse_pos1
+            if logic_front2 == 0:
+                screen.blit(downstr, (x3-25, y3-4))
+            if logic_front2 == 1:
+                screen.blit(upstr, (x3-25, y3-4))
+
+        if logic_front:
+            if mouse_click1[0]:
+                for item7 in grids:
+                    if grids[item7]["Kare_ortası"].collidepoint(mouse_pos1):
+                        if selected != "Notgate" and selected != "Buffer":
+                            if grids[item7]["Lojik"] == "":
+                                for int8 in range(17, 400, 18):
+                                    if item7 == int8:
+                                        logic_front = False
+                                        selected = None
+                                        break
+                                if logic_front:
+                                    grids[item7]["Lojik"] = selected
+                                    grids[item7]["Lojik_arka1"] = grids[item7]["Nokta"]
+                                    grids[item7]["Lojik_arka2"] = grids[item7+18]["Nokta"]
+                                    if logic_front2 == 1:
+                                        grids[item7]["Lojik_ön"] = (grids[item7+2]["Nokta"].x + 4, grids[item7+2]["Nokta"].y + 2)
+                                        grids[item7]["Lojik_ön_no"] = item7+2
+                                    if logic_front2 == 0:
+                                        grids[item7]["Lojik_ön"] = (grids[item7+20]["Nokta"].x + 4, grids[item7+20]["Nokta"].y + 4)
+                                        grids[item7]["Lojik_ön_no"] = item7+20
+
+        if draw_line and locate_for_item is not None and mouse_click1[0]:
+            pygame.draw.line(screen, (0, 255, 0), (grids[locate_for_item]["Nokta"].x+4, grids[locate_for_item]["Nokta"].y+4), mouse_pos1, 5)
+
+        if draw_line and locate_for_item is not None and not mouse_click1[0]:
+            for item2 in grids:
+                if grids[item2]["Nokta"].collidepoint(mouse_pos1):
+                    if (grids[locate_for_item]["Nokta"].x == grids[item2]["Nokta"].x) or (grids[locate_for_item]["Nokta"].y == grids[item2]["Nokta"].y):
+                        if (grids[locate_for_item]["Nokta"].x+4, grids[locate_for_item]["Nokta"].y+4) != (grids[item2]["Nokta"].x+4, grids[item2]["Nokta"].y+4):
+                            grids[locate_for_item]["Çizgi_başlangıç"].append((grids[locate_for_item]["Nokta"].x+4, grids[locate_for_item]["Nokta"].y+4))
+                            grids[locate_for_item]["Çizgi_bitiş"].append((grids[item2]["Nokta"].x+4, grids[item2]["Nokta"].y+4))
+                            draw_line = False
+                            locate_for_item = None
+            draw_line = False
+            locate_for_item = None
+
+    def draw_item_for_map():
+        for item3 in grids:
+            if len(grids[item3]["Çizgi_başlangıç"]) > 0:
+                for int5 in range(len(grids[item3]["Çizgi_başlangıç"])):
+                    pygame.draw.line(screen, grids[item3]["Kablo_renk"], grids[item3]["Çizgi_başlangıç"][int5], grids[item3]["Çizgi_bitiş"][int5], 5)
+            if grids[item3]["Eleman"] == "Düğüm":
+                dugum_ciz = pygame.image.load("dugum_lg.png")
+                new_width2 = 22
+                new_height2 = 22
+                resized_image2 = pygame.transform.scale(dugum_ciz, (new_width2, new_height2))
+                get_rect2 = resized_image2.get_rect()
+                locate2_1 = grids[item3]["Nokta"].x-(get_rect2.width//2) + 3
+                locate2_2 = grids[item3]["Nokta"].y-(get_rect2.height//2) + 3
+                screen.blit(resized_image2, (locate2_1, locate2_2))
+            if grids[item3]["Eleman"] == "Giriş":
+                gkutu_ciz = pygame.image.load("giriskutusu_lg.png")
+                new_width3 = 44
+                new_height3 = 44
+                resized_image3 = pygame.transform.scale(gkutu_ciz, (new_width3, new_height3))
+                get_rect3 = resized_image3.get_rect()
+                locate3_1 = grids[item3]["Nokta"].x-(get_rect3.width//2) + 3
+                locate3_2 = grids[item3]["Nokta"].y-(get_rect3.height//2) + 3
+                screen.blit(resized_image3, (locate3_1, locate3_2))
+                if grids[item3]["Giriş_değeri"] is not None:
+                    if grids[item3]["Giriş_değeri"]:
+                        screen.blit(acik, (grids[item3]["Nokta"].x, grids[item3]["Nokta"].y+18))
+                    else:
+                        screen.blit(kapali, (grids[item3]["Nokta"].x, grids[item3]["Nokta"].y+18))
+            if grids[item3]["Eleman"] == "Çıkış":
+                ckutu_ciz = pygame.image.load("cikiskutusu_lg.png")
+                new_width4 = 44
+                new_height4 = 44
+                resized_image4 = pygame.transform.scale(ckutu_ciz, (new_width4, new_height4))
+                get_rect4 = resized_image4.get_rect()
+                locate4_1 = grids[item3]["Nokta"].x-(get_rect4.width//2) + 3
+                locate4_2 = grids[item3]["Nokta"].y-(get_rect4.height//2) + 3
+                screen.blit(resized_image4, (locate4_1, locate4_2))
+                if grids[item3]["Çıkış_değeri"] is not None:
+                    if grids[item3]["Çıkış_değeri"]:
+                        screen.blit(acik, (grids[item3]["Nokta"].x, grids[item3]["Nokta"].y+18))
+                    else:
+                        screen.blit(kapali, (grids[item3]["Nokta"].x, grids[item3]["Nokta"].y+18))
+            if grids[item3]["Eleman"] == "Led":
+                led_ciz = pygame.image.load("led_lg.png")
+                if grids[item3]["Led"]:
+                    led_ciz = pygame.image.load("ledOn_lg.png")
+                new_width5 = 38
+                new_height5 = 38
+                resized_image5 = pygame.transform.scale(led_ciz, (new_width5, new_height5))
+                get_rect5 = resized_image5.get_rect()
+                locate5_1 = grids[item3]["Nokta"].x-(get_rect5.width//2) + 3
+                locate5_2 = grids[item3]["Nokta"].y-(get_rect5.height//2) + 3
+                screen.blit(resized_image5, (locate5_1, locate5_2))
+            if grids[item3]["Lojik"] in logic_gates and grids[item3]["Lojik"] != "Notgate" and grids[item3]["Lojik"] != "Buffer":
+                if grids[item3]["Lojik"] == "Andgate":
+                    gate_ciz = pygame.image.load("ANDgate_lg.png")
+                if grids[item3]["Lojik"] == "Orgate":
+                    gate_ciz = pygame.image.load("ORgate_lg.png")
+                if grids[item3]["Lojik"] == "Nandgate":
+                    gate_ciz = pygame.image.load("NANDgate_lg.png")
+                if grids[item3]["Lojik"] == "Xorgate":
+                    gate_ciz = pygame.image.load("XORgate_lg.png")
+                if grids[item3]["Lojik"] == "Xnorgate":
+                    gate_ciz = pygame.image.load("XNORgate_lg.png")
+                if grids[item3]["Lojik"] == "Norgate":
+                    gate_ciz = pygame.image.load("NORgate_lg.png")
+
+                new_width6 = 40
+                new_height6 = 40
+                resized_image6 = pygame.transform.scale(gate_ciz, (new_width6, new_height6))
+                locate6_1 = grids[item3]["Kare_ortası"].x-15
+                locate6_2 = grids[item3]["Kare_ortası"].y-12
+                screen.blit(resized_image6, (locate6_1, locate6_2))
+                if grids[item3]["Lojik_değer"] != "":
+                    if grids[item3]["Lojik_değer"]:
+                        dogruluk = font3.render("1", True, (0, 255, 0))
+                        screen.blit(dogruluk, (grids[item3]["Kare_ortası"].x, grids[item3]["Kare_ortası"].y+20))
+                    else:
+                        dogruluk = font3.render("0", True, (255, 0, 0))
+                        screen.blit(dogruluk, (grids[item3]["Kare_ortası"].x, grids[item3]["Kare_ortası"].y+20))
+
+                pygame.draw.line(screen, grids[item3]["Gate_renk"], (grids[item3+1]["Nokta"].x, grids[item3+1]["Nokta"].y+18), (grids[item3+1]["Nokta"].x + 34, grids[item3+1]["Nokta"].y + 18), 5)
+                pygame.draw.line(screen, grids[item3]["Gate_renk"], (grids[item3+1]["Nokta"].x + 34, grids[item3+1]["Nokta"].y + 18), (grids[item3]["Lojik_ön"][0], grids[item3]["Lojik_ön"][1]), 5)
+
+            if grids[item3]["Eleman"] == "Buffer":
+                buffer_ciz = pygame.image.load("Buffer_lg.png")
+                new_width7 = 52
+                new_height7 = 52
+                resized_image7 = pygame.transform.scale(buffer_ciz, (new_width7, new_height7))
+                get_rect7 = resized_image7.get_rect()
+                locate7_1 = grids[item3]["Nokta"].x-(get_rect7.width//2) + 3
+                locate7_2 = grids[item3]["Nokta"].y-(get_rect7.height//2) + 3
+                screen.blit(resized_image7, (locate7_1, locate7_2))
+            if grids[item3]["Eleman"] == "Notgate":
+                notgate_ciz = pygame.image.load("NOTgate_lg.png")
+                new_width8 = 52
+                new_height8 = 52
+                resized_image8 = pygame.transform.scale(notgate_ciz, (new_width8, new_height8))
+                get_rect8 = resized_image8.get_rect()
+                locate8_1 = grids[item3]["Nokta"].x-(get_rect8.width//2) + 3
+                locate8_2 = grids[item3]["Nokta"].y-(get_rect8.height//2) + 3
+                screen.blit(resized_image8, (locate8_1, locate8_2))
+
+            if len(grids[item3]["Çizgi_başlangıç"]) > 0:
+                for i in range(len(grids[item3]["Çizgi_başlangıç"])):
+                    if grids[item3]["Eleman"] != "" or grids[item3]["Lojik"] != "" or len(grids[item3]["Çizgi_başlangıç"]) > 0:
+                        for find in grids:
+                            if (grids[find]["Nokta"].x+4, grids[find]["Nokta"].y+4) == grids[item3]["Çizgi_bitiş"][i]:
+                                if grids[find]["Eleman"] != "" or grids[find]["Lojik"] != "" or len(grids[find]["Çizgi_başlangıç"]) > 0:
+                                    grids[item3]["Kablo_renk"] = (0, 255, 0)
+
+    def start():
+        global ON, OFF, selected
+        """if ON and not OFF:
+            for d in grids:
+                if grids[d]["Eleman"] == "Giriş":
+                    deger = grids[d]["Giriş_değeri"]
+                    if len(grids[d]["Çizgi_başlangıç"]) == 1:
+                        for a in grids:
+                            if (grids[a]["Nokta"].x+4, grids[a]["Nokta"].y+4) == grids[d]["Çizgi_bitiş"][0]:
+                                if grids[a]["Lojik"] == "Notgate":
+                                    grids[a]["Kablo_renk"] = (0, 255, 0)
+                                    if deger:
+                                        deger = False
+                                    else:
+                                        deger = True
+                                elif grids[a]["Lojik"] == "Buffer":
+                                    grids[a]["Çizgi_renk"] = (0, 255, 0)
+                                    deger = deger
+                                elif grids[a]["Lojik"] == "Andgate" or grids[a-18]["Lojik"] == "Andgate":
+                                    if grids[a]["Lojik"] == "Andgate":
+                                        if deger:
+                                            grids[a]["Lojik_arka1"] = True
+                                        else:
+                                            grids[a]["Lojik_arka1"] = False
+                                    if grids[a-18]["Lojik"] == "Andgate":
+                                        if deger:
+                                            grids[a-18]["Lojik_arka2"] = True
+                                        else:
+                                            grids[a-18]["Lojik_arka2"] = False
+                                elif grids[a]["Lojik"] == "Orgate" or grids[a-18]["Lojik"] == "Orgate":
+                                    if grids[a]["Lojik"] == "Orgate":
+                                        if deger:
+                                            grids[a]["Lojik_arka1"] = True
+                                        else:
+                                            grids[a]["Lojik_arka1"] = False
+                                    if grids[a-18]["Lojik"] == "Orgate":
+                                        if deger:
+                                            grids[a-18]["Lojik_arka2"] = True
+                                        else:
+                                            grids[a-18]["Lojik_arka2"] = False
+                                elif grids[a]["Lojik"] == "Nandgate" or grids[a-18]["Lojik"] == "Nandgate":
+                                    if grids[a]["Lojik"] == "Nandgate":
+                                        if deger:
+                                            grids[a]["Lojik_arka1"] = True
+                                        else:
+                                            grids[a]["Lojik_arka1"] = False
+                                    if grids[a-18]["Lojik"] == "Nandgate":
+                                        if deger:
+                                            grids[a-18]["Lojik_arka2"] = True
+                                        else:
+                                            grids[a-18]["Lojik_arka2"] = False
+                                elif grids[a]["Lojik"] == "Norgate" or grids[a-18]["Lojik"] == "Norgate":
+                                    if grids[a]["Lojik"] == "Norgate":
+                                        if deger:
+                                            grids[a]["Lojik_arka1"] = True
+                                        else:
+                                            grids[a]["Lojik_arka1"] = False
+                                    if grids[a-18]["Lojik"] == "Norgate":
+                                        if deger:
+                                            grids[a-18]["Lojik_arka2"] = True
+                                        else:
+                                            grids[a-18]["Lojik_arka2"] = False
+                                elif grids[a]["Lojik"] == "Xorgate" or grids[a-18]["Lojik"] == "Xorgate":
+                                    if grids[a]["Lojik"] == "Xorgate":
+                                        if deger:
+                                            grids[a]["Lojik_arka1"] = True
+                                        else:
+                                            grids[a]["Lojik_arka1"] = False
+                                    if grids[a-18]["Lojik"] == "Xorgate":
+                                        if deger:
+                                            grids[a-18]["Lojik_arka2"] = True
+                                        else:
+                                            grids[a-18]["Lojik_arka2"] = False"""
+
+        def etiket():
+            e_key = pygame.mouse.get_pressed()
+            e_mouse = pygame.mouse.get_pos()
+            if selected is None:
+                for a in grids:
+                    if grids[a]["Nokta"].collidepoint(e_mouse):
+                        if grids[a]["Eleman"] == "Düğüm":
+                            screen.blit(ad_text, (0, 440))
+                            e_name = font4.render("Düğüm", True, (0, 0, 0))
+                            screen.blit(e_name, (50, 440))
+                        if grids[a]["Eleman"] == "Giriş":
+                            screen.blit(ad_text, (0, 440))
+                            e_name = font4.render("Giriş kutusu", True, (0, 0, 0))
+                            screen.blit(e_name, (50, 440))
+
+                            screen.blit(dogruluk_durumu_text, (0, 460))
+                            e_dogruluk1 = ""
+                            if grids[a]["Giriş_değeri"]:
+                                e_dogruluk1 = "1"
+                            else:
+                                e_dogruluk1 = "0"
+                            e_dogruluk2 = font4.render(e_dogruluk1, True, (0, 0, 0))
+                            screen.blit(e_dogruluk2, (175, 460))
+                        if grids[a]["Eleman"] == "Çıkış":
+                            screen.blit(ad_text, (0, 440))
+                            e_name = font4.render("Çıkış kutusu", True, (0, 0, 0))
+                            screen.blit(e_name, (50, 440))
+
+                            screen.blit(dogruluk_durumu_text, (0, 460))
+                            e_dogruluk1 = ""
+                            if grids[a]["Çıkış_değeri"]:
+                                e_dogruluk1 = "1"
+                            else:
+                                e_dogruluk1 = "0"
+                            e_dogruluk2 = font4.render(e_dogruluk1, True, (0, 0, 0))
+                            screen.blit(e_dogruluk2, (175, 460))
+                        if grids[a]["Eleman"] == "Led":
+                            screen.blit(ad_text, (0, 440))
+                            e_name = font4.render("Led", True, (0, 0, 0))
+                            screen.blit(e_name, (50, 440))
+
+                            screen.blit(dogruluk_durumu_text, (0, 460))
+                            e_dogruluk1 = ""
+                            if grids[a]["Led"]:
+                                e_dogruluk1 = "1"
+                            else:
+                                e_dogruluk1 = "0"
+                            e_dogruluk2 = font4.render(e_dogruluk1, True, (0, 0, 0))
+                            screen.blit(e_dogruluk2, (175, 460))
+                        if grids[a]["Eleman"] == "Buffer":
+                            screen.blit(ad_text, (0, 440))
+                            e_name = font4.render("Buffer", True, (0, 0, 0))
+                            screen.blit(e_name, (50, 440))
+                            image = pygame.image.load("BUFFER_f.PNG")
+                            image = pygame.transform.scale(image, (400, 50))
+                            screen.blit(image, (0, 500))
+                            screen.blit(dogruluk_durumu_text, (0, 460))
+                            screen.blit(image, (0, 500))
+                            e_dogruluk1 = ""
+                            if grids[a]["Lojik_değer2"] == "":
+                                e_dogruluk1 = "Undefined"
+                            elif grids[a]["Lojik_değer2"] != "":
+                                if grids[a]["Lojik_değer2"]:
+                                    e_dogruluk1 = "1"
+                            else:
+                                e_dogruluk1 = "0"
+                            e_dogruluk2 = font4.render(e_dogruluk1, True, (0, 0, 0))
+                            screen.blit(e_dogruluk2, (175, 460))
+
+                            screen.blit(cikis_sayisi_text, (0, 480))
+                            girdi_sayi = 0
+                            for find in grids:
+                                for i in range(len(grids[find]["Çizgi_bitiş"])):
+                                    if grids[find]["Çizgi_bitiş"][i] == (grids[a]["Nokta"].x+4, grids[a]["Nokta"].y+4):
+                                        girdi_sayi = 1
+                                        break
+
+                            cikis_name = font4.render(str(girdi_sayi), True, (0, 0, 0))
+                            screen.blit(cikis_name, (115, 480))
+                        if grids[a]["Eleman"] == "Notgate":
+                            screen.blit(ad_text, (0, 440))
+                            e_name = font4.render("Notgate", True, (0, 0, 0))
+                            screen.blit(e_name, (50, 440))
+
+                            screen.blit(dogruluk_durumu_text, (0, 460))
+                            image = pygame.image.load("NOT_f.PNG")
+                            image = pygame.transform.scale(image, (400, 50))
+                            screen.blit(image, (0, 500))
+                            e_dogruluk1 = ""
+                            if grids[a]["Lojik_değer2"] == "":
+                                e_dogruluk1 = "Undefined"
+                            elif grids[a]["Lojik_değer2"] != "":
+                                if grids[a]["Lojik_değer2"]:
+                                    e_dogruluk1 = "1"
+                            else:
+                                e_dogruluk1 = "0"
+                            e_dogruluk2 = font4.render(e_dogruluk1, True, (0, 0, 0))
+                            screen.blit(e_dogruluk2, (175, 460))
+
+                            screen.blit(cikis_sayisi_text, (0, 480))
+                            girdi_sayi = 0
+                            for find in grids:
+                                for i in range(len(grids[find]["Çizgi_bitiş"])):
+                                    if grids[find]["Çizgi_bitiş"][i] == (grids[a]["Nokta"].x+4, grids[a]["Nokta"].y+4):
+                                        girdi_sayi = 1
+                                        break
+
+                            cikis_name = font4.render(str(girdi_sayi), True, (0, 0, 0))
+                            screen.blit(cikis_name, (115, 480))
+                    if grids[a]["Kare_ortası"].collidepoint(e_mouse):
+                        if grids[a]["Lojik"] == "Andgate":
+                            screen.blit(ad_text, (0, 440))
+                            e_name = font4.render("Andgate", True, (0, 0, 0))
+                            screen.blit(e_name, (50, 440))
+
+                            screen.blit(dogruluk_durumu_text, (0, 460))
+                            screen.blit(e_name, (50, 440))
+                            image = pygame.image.load("AND_f.PNG")
+                            image = pygame.transform.scale(image, (400, 50))
+                            screen.blit(image, (0, 500))
+                            e_dogruluk1 = ""
+                            if grids[a]["Lojik_değer2"] == "":
+                                e_dogruluk1 = "Undefined"
+                            elif grids[a]["Lojik_değer2"] != "":
+                                if grids[a]["Lojik_değer2"]:
+                                    e_dogruluk1 = "1"
+                            else:
+                                e_dogruluk1 = "0"
+                            e_dogruluk2 = font4.render(e_dogruluk1, True, (0, 0, 0))
+                            screen.blit(e_dogruluk2, (175, 460))
+
+                            screen.blit(cikis_sayisi_text, (0, 480))
+                            girdi_sayi = 0
+                            for find in grids:
+                                for i in range(len(grids[find]["Çizgi_bitiş"])):
+                                    if grids[find]["Çizgi_bitiş"][i] == (grids[a]["Nokta"].x+4, grids[a]["Nokta"].y+4) or grids[find]["Çizgi_bitiş"][i] == (grids[a+18]["Nokta"].x+4, grids[a+18]["Nokta"].y+4):
+                                        girdi_sayi += 1
+                                        break
+
+                            cikis_name = font4.render(str(girdi_sayi), True, (0, 0, 0))
+                            screen.blit(cikis_name, (115, 480))
+                        if grids[a]["Lojik"] == "Orgate":
+                            screen.blit(ad_text, (0, 440))
+                            e_name = font4.render("Orgate", True, (0, 0, 0))
+                            screen.blit(e_name, (50, 440))
+
+                            screen.blit(dogruluk_durumu_text, (0, 460))
+                            image = pygame.image.load("OR_f.PNG")
+                            image = pygame.transform.scale(image, (400, 50))
+                            screen.blit(image, (0, 500))
+                            e_dogruluk1 = ""
+                            if grids[a]["Lojik_değer2"] == "":
+                                e_dogruluk1 = "Undefined"
+                            elif grids[a]["Lojik_değer2"] != "":
+                                if grids[a]["Lojik_değer2"]:
+                                    e_dogruluk1 = "1"
+                            else:
+                                e_dogruluk1 = "0"
+                            e_dogruluk2 = font4.render(e_dogruluk1, True, (0, 0, 0))
+                            screen.blit(e_dogruluk2, (175, 460))
+
+                            screen.blit(cikis_sayisi_text, (0, 480))
+                            girdi_sayi = 0
+                            for find in grids:
+                                for i in range(len(grids[find]["Çizgi_bitiş"])):
+                                    if grids[find]["Çizgi_bitiş"][i] == (grids[a]["Nokta"].x+4, grids[a]["Nokta"].y+4) or grids[find]["Çizgi_bitiş"][i] == (grids[a+18]["Nokta"].x+4, grids[a+18]["Nokta"].y+4):
+                                        girdi_sayi += 1
+                                        break
+
+                            cikis_name = font4.render(str(girdi_sayi), True, (0, 0, 0))
+                            screen.blit(cikis_name, (115, 480))
+                        if grids[a]["Lojik"] == "Nandgate":
+                            screen.blit(ad_text, (0, 440))
+                            e_name = font4.render("Nandgate", True, (0, 0, 0))
+                            screen.blit(e_name, (50, 440))
+
+                            screen.blit(dogruluk_durumu_text, (0, 460))
+                            image = pygame.image.load("NAND_f.PNG")
+                            image = pygame.transform.scale(image, (400, 50))
+                            screen.blit(image, (0, 500))
+                            e_dogruluk1 = ""
+                            if grids[a]["Lojik_değer2"] == "":
+                                e_dogruluk1 = "Undefined"
+                            elif grids[a]["Lojik_değer2"] != "":
+                                if grids[a]["Lojik_değer2"]:
+                                    e_dogruluk1 = "1"
+                            else:
+                                e_dogruluk1 = "0"
+                            e_dogruluk2 = font4.render(e_dogruluk1, True, (0, 0, 0))
+                            screen.blit(e_dogruluk2, (175, 460))
+
+                            screen.blit(cikis_sayisi_text, (0, 480))
+                            girdi_sayi = 0
+                            for find in grids:
+                                for i in range(len(grids[find]["Çizgi_bitiş"])):
+                                    if grids[find]["Çizgi_bitiş"][i] == (grids[a]["Nokta"].x+4, grids[a]["Nokta"].y+4) or grids[find]["Çizgi_bitiş"][i] == (grids[a+18]["Nokta"].x+4, grids[a+18]["Nokta"].y+4):
+                                        girdi_sayi += 1
+                                        break
+
+                            cikis_name = font4.render(str(girdi_sayi), True, (0, 0, 0))
+                            screen.blit(cikis_name, (115, 480))
+                        if grids[a]["Lojik"] == "Norgate":
+                            screen.blit(ad_text, (0, 440))
+                            e_name = font4.render("Norgate", True, (0, 0, 0))
+                            screen.blit(e_name, (50, 440))
+
+                            screen.blit(dogruluk_durumu_text, (0, 460))
+                            image = pygame.image.load("NOR_f.PNG")
+                            image = pygame.transform.scale(image, (400, 50))
+                            screen.blit(image, (0, 500))
+                            e_dogruluk1 = ""
+                            if grids[a]["Lojik_değer2"] == "":
+                                e_dogruluk1 = "Undefined"
+                            elif grids[a]["Lojik_değer2"] != "":
+                                if grids[a]["Lojik_değer2"]:
+                                    e_dogruluk1 = "1"
+                            else:
+                                e_dogruluk1 = "0"
+                            e_dogruluk2 = font4.render(e_dogruluk1, True, (0, 0, 0))
+                            screen.blit(e_dogruluk2, (175, 460))
+
+                            screen.blit(cikis_sayisi_text, (0, 480))
+                            girdi_sayi = 0
+                            for find in grids:
+                                for i in range(len(grids[find]["Çizgi_bitiş"])):
+                                    if grids[find]["Çizgi_bitiş"][i] == (grids[a]["Nokta"].x+4, grids[a]["Nokta"].y+4) or grids[find]["Çizgi_bitiş"][i] == (grids[a+18]["Nokta"].x+4, grids[a+18]["Nokta"].y+4):
+                                        girdi_sayi += 1
+                                        break
+
+                            cikis_name = font4.render(str(girdi_sayi), True, (0, 0, 0))
+                            screen.blit(cikis_name, (115, 480))
+                        if grids[a]["Lojik"] == "Xorgate":
+                            screen.blit(ad_text, (0, 440))
+                            e_name = font4.render("Xorgate", True, (0, 0, 0))
+                            screen.blit(e_name, (50, 440))
+
+                            screen.blit(dogruluk_durumu_text, (0, 460))
+                            image = pygame.image.load("XOR_f.PNG")
+                            image = pygame.transform.scale(image, (400, 50))
+                            screen.blit(image, (0, 500))
+                            e_dogruluk1 = ""
+                            if grids[a]["Lojik_değer2"] == "":
+                                e_dogruluk1 = "Undefined"
+                            elif grids[a]["Lojik_değer2"] != "":
+                                if grids[a]["Lojik_değer2"]:
+                                    e_dogruluk1 = "1"
+                            else:
+                                e_dogruluk1 = "0"
+                            e_dogruluk2 = font4.render(e_dogruluk1, True, (0, 0, 0))
+                            screen.blit(e_dogruluk2, (175, 460))
+
+                            screen.blit(cikis_sayisi_text, (0, 480))
+                            girdi_sayi = 0
+                            for find in grids:
+                                for i in range(len(grids[find]["Çizgi_bitiş"])):
+                                    if grids[find]["Çizgi_bitiş"][i] == (grids[a]["Nokta"].x+4, grids[a]["Nokta"].y+4) or grids[find]["Çizgi_bitiş"][i] == (grids[a+18]["Nokta"].x+4, grids[a+18]["Nokta"].y+4):
+                                        girdi_sayi += 1
+                                        break
+
+                            cikis_name = font4.render(str(girdi_sayi), True, (0, 0, 0))
+                            screen.blit(cikis_name, (115, 480))
+                        if grids[a]["Lojik"] == "Xnorgate":
+                            screen.blit(ad_text, (0, 440))
+                            e_name = font4.render("Xnorgate", True, (0, 0, 0))
+                            screen.blit(e_name, (50, 440))
+
+                            screen.blit(dogruluk_durumu_text, (0, 460))
+                            screen.blit(dogruluk_durumu_text, (0, 460))
+                            image = pygame.image.load("XNOR_f.PNG")
+                            image = pygame.transform.scale(image, (400, 50))
+                            screen.blit(image, (0, 500))
+                            
+                            e_dogruluk1 = ""
+                            if grids[a]["Lojik_değer2"] == "":
+                                e_dogruluk1 = "Undefined"
+                            elif grids[a]["Lojik_değer2"] != "":
+                                if grids[a]["Lojik_değer2"]:
+                                    e_dogruluk1 = "1"
+                            else:
+                                e_dogruluk1 = "0"
+                            e_dogruluk2 = font4.render(e_dogruluk1, True, (0, 0, 0))
+                            screen.blit(e_dogruluk2, (175, 460))
+
+                            screen.blit(cikis_sayisi_text, (0, 480))
+                            girdi_sayi = 0
+                            for find in grids:
+                                for i in range(len(grids[find]["Çizgi_bitiş"])):
+                                    if grids[find]["Çizgi_bitiş"][i] == (grids[a]["Nokta"].x+4, grids[a]["Nokta"].y+4) or grids[find]["Çizgi_bitiş"][i] == (grids[a+18]["Nokta"].x+4, grids[a+18]["Nokta"].y+4):
+                                        girdi_sayi += 1
+                                        break
+
+                            cikis_name = font4.render(str(girdi_sayi), True, (0, 0, 0))
+                            screen.blit(cikis_name, (115, 480))
+
+        etiket()
+
+    def ayar():
+        global timer1
+        timer3 = pygame.time.get_ticks()
+        ayar_pos = pygame.mouse.get_pos()
+        ayar_key = pygame.key.get_pressed()
+        if selected is None:
+            if ayar_key[pygame.K_SPACE]:
+                for s in grids:
+                    if grids[s]["Nokta"].collidepoint(ayar_pos):
+                        if grids[s]["Eleman"] == "Giriş":
+                            if grids[s]["Giriş_değeri"] and timer3 - timer1 > 400:
+                                timer1 = timer3
+                                grids[s]["Giriş_değeri"] = False
+                            elif timer3 - timer1 > 400:
+                                timer1 = timer3
+                                grids[s]["Giriş_değeri"] = True
+
+
+    def draw_grid():
+        for grid in range(450, 961, 30):
+            for grid2 in range(30, 571, 30):
+                pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(grid, grid2, 3, 3))
+
+    def selecting_mark():
+        s2 = -1
+        for int2 in string_names:
+            s2 += 1
+            if selected == int2 and selected != "Çalıştır" and selected != "Reset" and selected != "Durdur":
+                image = pygame.image.load("selected_lg.png")
+                transparent_value = 180
+                image.set_alpha(transparent_value)
+                if selected == "Giriş":
+                    screen.blit(image, (locates[s2].x - 5, locates[s2].y - 10))
+                elif selected == "Çıkış":
+                    screen.blit(image, (locates[s2].x + 6, locates[s2].y - 10))
+                elif selected == "Led":
+                    screen.blit(image, (locates[s2].x - 6, locates[s2].y - 10))
+                elif selected == "Çizgi":
+                    screen.blit(image, (locates[s2].x - 5, locates[s2].y - 10))
+                elif selected == "Buffer":
+                    screen.blit(image, (locates[s2].x - 18, locates[s2].y - 14))
+                else:
+                    screen.blit(image, (locates[s2].x - 10, locates[s2].y - 10))
+
+    def show_selected():
+        s3 = -1
+        for r in string_names:
+            s3 += 1
+            if selected == r:
+                mouse_pos = pygame.mouse.get_pos()
+                x1, y1 = mouse_pos
+                new_width = 46
+                new_height = 46
+                if selected == "Buffer":
+                    new_width = 62
+                    new_height = 62
+                resized_image = pygame.transform.scale(image_list[s3], (new_width, new_height))
+                get_rect = resized_image.get_rect()
+                locate_1 = x1-(get_rect.width//2)
+                locate_2 = y1-(get_rect.height//2)
+                screen.blit(resized_image, (locate_1, locate_2))
+                break
+    a=0
+    a=1
+    def escape():
+        global selected
+        key_pressed = pygame.key.get_pressed()
+        if key_pressed[pygame.K_ESCAPE]:
+            selected = None
+    def AND(a, b):
+        return a and b
+
+    def OR(a, b):
+        return a or b
+
+    def NOT(a):
+        return not a
+
+    def BUFFER(a):
+        return a
+
+    def NAND(a, b):
+        return not (a and b)
+
+    def NOR(a, b):
+        return not (a or b)
+
+    def XOR(a, b):
+        return a != b
+
+    def XNOR(a, b):
+        return a == b
+
+    if grids[a]["Eleman"] == "AND":
+        grids[a]["Çıkış_değeri"] = AND(grids[a]["Giriş_değeri1"], grids[a]["Giriş_değeri2"])
+    elif grids[a]["Eleman"] == "OR":
+        grids[a]["Çıkış_değeri"] = OR(grids[a]["Giriş_değeri1"], grids[a]["Giriş_değeri2"])
+    elif grids[a]["Eleman"] == "NOT":
+        grids[a]["Çıkış_değeri"] = NOT(grids[a]["Giriş_değeri"])
+    elif grids[a]["Eleman"] == "Buffer":
+        grids[a]["Çıkış_değeri"] = BUFFER(grids[a]["Giriş_değeri"])
+    elif grids[a]["Eleman"] == "NAND":
+        grids[a]["Çıkış_değeri"] = NAND(grids[a]["Giriş_değeri1"], grids[a]["Giriş_değeri2"])
+    elif grids[a]["Eleman"] == "NOR":
+        grids[a]["Çıkış_değeri"] = NOR(grids[a]["Giriş_değeri1"], grids[a]["Giriş_değeri2"])
+    elif grids[a]["Eleman"] == "XOR":
+        grids[a]["Çıkış_değeri"] = XOR(grids[a]["Giriş_değeri1"], grids[a]["Giriş_değeri2"])
+    elif grids[a]["Eleman"] == "XNOR":
+        grids[a]["Çıkış_değeri"] = XNOR(grids[a]["Giriş_değeri1"], grids[a]["Giriş_değeri2"])
+   
+    def for_event():
+        global selected, draw_line, locate_for_item, ON, OFF, logic_front, logic_front2, timer1
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONUP:
+                s1 = -1
+                for i in locates:
+                    mouse_pos = pygame.mouse.get_pos()
+                    s1 += 1
+                    if i.collidepoint(mouse_pos) and string_names[s1] != "Çalıştır" and string_names[s1] != "Durdur" and string_names[s1] != "Reset":
+                        selected = string_names[s1]
+                        break
+                    if i.collidepoint(mouse_pos) and string_names[s1] == "Reset":
+                        selected = None
+                        draw_line = False
+                        logic_front = False
+                        locate_for_item = None
+                        for delete in grids:
+                            grids[delete]["Eleman"] = ""
+                            grids[delete]["Çizgi_başlangıç"] = []
+                            grids[delete]["Çizgi_bitiş"] = []
+                            grids[delete]["Düğüm"] = ""
+                            grids[delete]["Lojik_ön"] = ""
+                            grids[delete]["Lojik_arka1"] = ""
+                            grids[delete]["Lojik_arka2"] = ""
+                            grids[delete]["Lojik"] = ""
+                            grids[delete]["Giriş_değeri"] = None
+                            grids[delete]["Çıkış_değeri"] = None
+                            grids[delete]["Kablo_renk"] = (255, 0, 0)
+                            grids[delete]["Gate_renk"] = (255, 0, 0)
+                            grids[delete]["Led"] = ""
+                            grids[delete]["Lojik_değer"] = ""
+                            grids[delete]["Lojik_ön_no"] = ""
+                        break
+                    if i.collidepoint(mouse_pos) and string_names[s1] == "Çalıştır":
+                        ON = True
+                        OFF = False
+                    if i.collidepoint(mouse_pos) and string_names[s1] == "Durdur":
+                        ON = False
+                        OFF = True
+
+            key_get = pygame.key.get_pressed()
+            timer2 = pygame.time.get_ticks()
+            if key_get[pygame.K_w] and timer2 - timer1 > 300:
+                logic_front2 += 1
+                timer1 = timer2
+                if logic_front2 == 2:
+                    logic_front2 = 0
+
+    for_event()
+
+    draw_background()
+    draw_grid()
+    shine()
+    selecting_mark()
+    show_selected()
+    escape()
+    show_name()
+    add()
+    ayar()
+    start()
+    draw_item_for_map()
+
+    pygame.display.flip()
